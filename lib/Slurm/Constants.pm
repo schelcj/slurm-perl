@@ -19,7 +19,7 @@ our %EXPORT_TAGS = (all => [qw(
   $PIPE
 )]);
 
-Readonly::Scalar our $PIPE => q{|};
+Readonly::Scalar our $PIPE => qr{\|};
 
 Readonly::Scalar our $SCONTROL_CMD => q{/usr/bin/scontrol};
 Readonly::Scalar our $SQUEUE_CMD   => q{/usr/bin/squeue};

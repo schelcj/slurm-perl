@@ -24,6 +24,9 @@ has 'is_admin' => (
   default => 0,
 );
 
+no Moose;
+__PACKAGE__->meta->make_immutable;
+
 sub get_all {
   my ($class) = @_;
   my @users   = ();

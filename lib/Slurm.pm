@@ -19,7 +19,7 @@ has 'queue' => (
 
 has 'users' => (
   traits  => ['Array'],
-  is      => 'ro',
+  is      => 'rw',
   isa     => 'ArrayRef[Slurm::User]',
   lazy    => 1,
   builder => '_build_users',
@@ -47,11 +47,9 @@ sub _build_queue {
 
 sub _build_users {
   my ($self) = @_;
-  my @users = Slurm::User->get_all();
+  my @users  = Slurm::User->get_all();
 
-  foreach my $user (@users) {
-    $self->users->add_to($user);
-  }
+  $self->users(\@users);
 
   return;
 }
