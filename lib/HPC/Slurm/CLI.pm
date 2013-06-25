@@ -40,7 +40,6 @@ sub get_accounts {
   return wantarray ? @accounts : \@accounts;
 }
 
-
 sub get_qos {
   my @qos = _parse_cmd($SHOW_QOS, @QOS_FIELDS);
   return wantarray ? @qos : \@qos;

@@ -3,11 +3,14 @@ package HPC::Slurm;
 use Modern::Perl;
 use Moose;
 use HPC::Slurm::User;
+use HPC::Slurm::CLI;
 
-has 'cluster' => (
+has 'clusters' => (
+  traits => ['Array'],
   is       => 'ro',
-  isa      => 'Str',
-  required => 1
+  isa      => 'ArrayRef[HPC::Slurm::Cluster]',
+  lazy     => 1,
+  builder  => '_build_clusters',
 );
 
 has 'queue' => (
@@ -42,6 +45,11 @@ has 'nodes' => (
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
+
+sub _build_clusters {
+  my ($self) = @_;
+  return [map {HPC::Slurm::Cluster->new($_)} HPC::Slurm::CLI->get_clusters()];
+}
 
 sub _build_queue {
   my ($self) = @_;
