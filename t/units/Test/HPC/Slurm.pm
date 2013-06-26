@@ -20,20 +20,22 @@ sub constructor : Test(3) {
   isa_ok($slurm, $class, '... and the object it returns');
 }
 
-sub clusters : Test(6) {
+sub clusters : Test(9) {
   my ($test)  = @_;
   my $class   = $test->class;
-  my $fixture = LoadFile(qq($Bin/fixtures/clusters.yml));
+  my $fixture = LoadFile(qq($Bin/fixtures/clusters.yaml));
   my $slurm   = $class->new();
 
-  can_ok($slurm, 'cluster');
+  can_ok($slurm, 'clusters');
   ok(my $clusters = $slurm->clusters(), '... and can build a list of clusters');
   is(ref $clusters, 'ARRAY', '... and clusters is an ARRAY reference');
-  is(scalar @{$clusters}, scalar $fixture->{clusters}, '... and count of clusters matches fixture');
+  is(scalar @{$clusters}, scalar @{$fixture->{clusters}}, '... and count of clusters matches fixture');
 
-  my $cluster = $clusters->first;
-  is($cluster->cluster,   $fixture->{cluster},   '... and cluster name matches fixture');
-  is($cluster->nodecount, $fixture->{nodecount}, '... and nodecount matches fixture');
+  my $cluster = $clusters->[0];
+
+  for (qw(cluster nodecount cpucount controlhost controlport)) {
+    is($cluster->$_,   $fixture->{$_},   qq{... and $_ matches fixture});
+  }
 }
 
 1;

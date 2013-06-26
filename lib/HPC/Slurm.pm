@@ -4,6 +4,7 @@ use Modern::Perl;
 use Moose;
 use HPC::Slurm::User;
 use HPC::Slurm::CLI;
+use HPC::Slurm::Cluster;
 
 has 'clusters' => (
   traits => ['Array'],
