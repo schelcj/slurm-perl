@@ -5,11 +5,13 @@ use IPC::System::Simple qw(capture);
 use HPC::Slurm::Constants qw(:all);
 use Readonly;
 
-Readonly::Scalar my $SACCTMGR          => q{sacctmgr -n -P};
-Readonly::Scalar my $SHOW_CLUSTERS_CMD => qq{$SACCTMGR show cluster};
-Readonly::Scalar my $SHOW_USERS_CMD    => qq{$SACCTMGR show users};
-Readonly::Scalar my $SHOW_ACCOUNTS_CMD => qq{$SACCTMGR show accounts};
-Readonly::Scalar my $SHOW_QOS          => qq{$SACCTMGR show qos};
+Readonly::Scalar my $SACCTMGR            => q{sacctmgr -n -P};
+Readonly::Scalar my $SCONTROL            => q{scontrol -a -o};
+Readonly::Scalar my $SHOW_CLUSTERS_CMD   => qq{$SACCTMGR show cluster};
+Readonly::Scalar my $SHOW_USERS_CMD      => qq{$SACCTMGR show users};
+Readonly::Scalar my $SHOW_ACCOUNTS_CMD   => qq{$SACCTMGR show accounts};
+Readonly::Scalar my $SHOW_QOS_CMD        => qq{$SACCTMGR show qos};
+Readonly::Scalar my $SHOW_PARTITIONS_CMD => qq{$SCONTROL show partitions};
 
 Readonly::Array my @CLUSTER_FIELDS => (
   qw(classification cluster controlhost controlport cpucount
@@ -41,8 +43,31 @@ sub get_accounts {
 }
 
 sub get_qos {
-  my @qos = _parse_cmd($SHOW_QOS, @QOS_FIELDS);
+  my @qos = _parse_cmd($SHOW_QOS_CMD, @QOS_FIELDS);
   return wantarray ? @qos : \@qos;
+}
+
+sub get_partitions {
+  my ($self) = @_;
+  my @parts  = ();
+
+  for my $line (capture($SHOW_PARTITIONS_CMD)) {
+    chomp $line;
+
+    my $part = {};
+    for my $attr (split($SPACE_REGEXP, $line)) {
+      my ($name, $value) = split($EQUAL_REGEXP, $attr);
+      $name =~ s/(?:CPU)/Cpu/g;
+      $name =~ s/\B([A-Z](?=[a-z]))/_$1/g;
+      $name =~ tr/[A-Z]/[a-z]/;
+
+      $part->{$name} = $value;
+    }
+
+    push @parts, $part;
+  }
+
+  return wantarray ? @parts : \@parts;
 }
 
 sub _parse_cmd {

@@ -4,6 +4,7 @@ use FindBin qw($Bin);
 use base qw(Test::Class);
 use Test::Most;
 use YAML qw(LoadFile);
+use Data::Dumper;
 
 sub class {'HPC::Slurm'}
 
@@ -36,6 +37,15 @@ sub clusters : Test(9) {
   for (qw(cluster nodecount cpucount controlhost controlport)) {
     is($cluster->$_,   $fixture->{$_},   qq{... and $_ matches fixture});
   }
+}
+
+sub partitions: Test(2) {
+  my ($test) = @_;
+  my $class  = $test->class;
+  my $slurm  = $class->new();
+
+  can_ok($slurm, 'partitions');
+  ok(my $partitions = $slurm->partitions(), '... and can build a list of parititons');
 }
 
 1;
